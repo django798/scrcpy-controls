@@ -9,7 +9,7 @@ PC 键盘。保留上游 Apache-2.0 许可证和版权声明。
 
 ## Windows 本机运行
 
-使用公开 Release 时，先按 [客户端覆盖包说明](windows-overlay.md)将覆盖包解压到
+使用公开 Release 时，先按 [客户端覆盖包说明](windows-overlay.zh-CN.md)将覆盖包解压到
 上游官方 v5.0.1 完整包的目录，再运行 `run-controls.bat`。
 
 从源码编译完成后，双击仓库根目录的 `run-controls.bat`，或运行便携目录中的同名
@@ -37,8 +37,10 @@ PC 键盘。保留上游 Apache-2.0 许可证和版权声明。
 - 中部：上下左右、OK、Home/End、Page Up/Down、Insert/Delete、数字小键盘。
 - 下部：Esc、F1–F12、Print Screen、Scroll Lock、Pause、字母、数字、符号、
   Tab、Backspace、Enter、Space，以及左右 Shift/Ctrl/Alt/Meta。
-- 底部第一排：`Info` 刷新电量、`/data` 存储和内存的已用/总量、当前熄屏超时；
-  窗口启动时自动读取一次，`G` 为 GiB。设备公开满充/设计容量时同时显示电池 mAh，
+- 底部第一排：`Info` 刷新电量、`Data(/data)` 存储和 `RAM` 内存的已用/总量、当前熄屏超时；
+  窗口启动时自动读取一次，两者始终使用相同的“已用/总量”口径，单位均为 GiB。
+  第二排持续显示 `Used/Total GiB`，读取、设置和失败状态也保留这个说明。
+  设备公开满充/设计容量时同时显示电池 mAh，
   未公开时不使用剩余电荷量估算额定容量。缺失数据显示 `--`。
 - 底部第二排：`Sleep` 的 `1m / 3m / 5m / 30m / Always`。设置读回一致后才高亮，
   拒绝写入、被系统改回或读取超时会显示失败状态，可点 `Info` 重读。
@@ -70,6 +72,23 @@ Print Screen、Pause、F1–F12 等键的作用由设备系统和当前应用决
 USB 持续供电时可常亮；选回分钟档会关闭供电保持唤醒。手动熄屏及设备管理、
 厂商电源策略仍可生效。若启动时另外指定了上游 `--stay-awake` 或
 `--screen-off-timeout`，上游的退出恢复机制仍会执行。
+
+## Data、RAM 与整机存储容量
+
+| 项目 | 界面的统计范围 | 数值含义 |
+| --- | --- | --- |
+| `Data(/data)` | `df -k /data` 所报告的数据文件系统，包含应用数据及由该文件系统承载的用户文件 | 已用块数 / 文件系统总块数，换算为 GiB |
+| `RAM` | Linux 提供给系统使用的内存 | `(MemTotal − MemAvailable) / MemTotal`，换算为 GiB；可回收缓存算入可用内存，不是各进程 RSS 相加 |
+| 内置闪存（俗称 ROM） | 整机存储介质，包括数据、系统、启动等分区 | 硬件或零售标称容量，不等于 `/data` 的文件系统容量；本面板不显示这个指标 |
+
+例如 `Data(/data) 19.9/52.1` 和 `RAM 2.7/3.6` 分别表示已用 19.9/2.7 GiB，
+对应总量 52.1/3.6 GiB。二者左侧都表示“已用”，不是剩余。
+`df` 的可用空间还可能受文件系统保留空间、配额影响，不能把“总量减已用”当作精确的可分配空间。
+
+整机闪存应与 Data 分开命名和取数，不把各分区空闲相加作为用户可用空间。
+Android 的 [`StorageStatsManager`](https://developer.android.com/reference/android/app/usage/StorageStatsManager)
+也区分存储介质的展示容量和卷的剩余空间；后者可能包含可回收缓存，因此与 `df` 口径不同。
+当前基于 ADB 的面板保留可核实的 `/data` 统计，不根据 Data 大小推测设备是 64/128/256 GB。
 
 ## Windows 从源码构建
 

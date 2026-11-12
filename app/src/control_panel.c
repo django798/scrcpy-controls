@@ -3,6 +3,7 @@
 #include "control_panel.h"
 
 #include <assert.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "events.h"
@@ -291,19 +292,25 @@ sc_control_panel_render(const struct sc_control_panel *panel,
         status = panel->settings_action == SC_DEVICE_ACTION_READ
                ? "Reading..." : "Setting...";
     } else if (panel->settings_result != SC_DEVICE_RESULT_OK) {
-        status = panel->settings_result == SC_DEVICE_RESULT_TIMEOUT ? "Timed out: retry Info"
-               : panel->settings_result == SC_DEVICE_RESULT_SET_FAILED ? "Not applied: retry"
-               : "Read failed: retry Info";
+        status = panel->settings_result == SC_DEVICE_RESULT_TIMEOUT ? "Timed out"
+               : panel->settings_result == SC_DEVICE_RESULT_SET_FAILED ? "Not applied"
+               : "Read failed";
         status_color = (SDL_Color) {242, 161, 130, 255};
     } else if ((panel->device_info.fields & SC_DEVICE_INFO_STAY_AWAKE)
             && panel->device_info.stay_awake
             && !sc_device_info_matches(&panel->device_info, SC_DEVICE_ACTION_ALWAYS)) {
-        status = "Awake while powered";
+        status = "Plugged awake";
     } else {
         status = panel->settings_action == SC_DEVICE_ACTION_READ ? "Read" : "Applied";
         status_color = accent;
     }
-    draw_text(renderer, ox + 384*scale, oy + 614*scale, status, scale, status_color);
+    // Keep the measurement basis visible during reads, writes and errors.
+    // This legend applies to both Data and RAM in the row above.
+    char status_text[48];
+    snprintf(status_text, sizeof(status_text), "Used/Total GiB | %s", status);
+    float status_scale = scale * MIN(1.f, 240.f / (8 * strlen(status_text)));
+    draw_text(renderer, ox + 384*scale, oy + 614*scale, status_text,
+              status_scale, status_color);
     SDL_SetRenderScale(renderer, old_x, old_y);
 }
 

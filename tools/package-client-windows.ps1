@@ -5,7 +5,7 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $PSScriptRoot
-$version = 'v5.0.1-controls.1'
+$version = 'v5.0.1-controls.2'
 $name = "scrcpy-controls-$version-windows-x64-client"
 $dist = Join-Path $repo 'dist'
 New-Item -ItemType Directory -Path $dist -Force | Out-Null
@@ -17,7 +17,15 @@ Copy-Item -LiteralPath $Client -Destination "$stage/scrcpy.exe"
 foreach ($file in @('run-controls.bat', 'LICENSE', 'NOTICE', 'MODIFICATIONS.md', 'THIRD_PARTY_NOTICES.md')) {
     Copy-Item -LiteralPath (Join-Path $repo $file) -Destination $stage
 }
-Copy-Item -LiteralPath "$repo/doc/windows-overlay.md" -Destination "$stage/README.md"
+foreach ($guide in @(
+    @('windows-overlay.md', 'README.md'),
+    @('windows-overlay.zh-CN.md', 'README.zh-CN.md')
+)) {
+    $guidePath = Join-Path "$repo/doc" $guide[0]
+    $text = [System.IO.File]::ReadAllText($guidePath)
+    $text = $text.Replace('(windows-overlay.md)', '(README.md)').Replace('(windows-overlay.zh-CN.md)', '(README.zh-CN.md)')
+    [System.IO.File]::WriteAllText("$stage/$($guide[1])", $text, [System.Text.UTF8Encoding]::new($false))
+}
 New-Item -ItemType Directory -Path "$stage/licenses" | Out-Null
 foreach ($file in @('LGPL-2.1.txt', 'SDL3-Zlib.txt')) {
     Copy-Item -LiteralPath "$repo/licenses/$file" -Destination "$stage/licenses/$file"

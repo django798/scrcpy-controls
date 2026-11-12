@@ -186,15 +186,15 @@ sc_device_info_format(const struct sc_device_info *info, char *buf, size_t len) 
         }
     }
     if (info->fields & SC_DEVICE_INFO_STORAGE) {
-        snprintf(data, sizeof(data), "Data %.1f/%.1fG",
+        snprintf(data, sizeof(data), "Data(/data) %.1f/%.1f",
                  info->storage_used_kib / gib, info->storage_total_kib / gib);
     }
     if (info->fields & SC_DEVICE_INFO_MEMORY_AVAILABLE) {
-        snprintf(memory, sizeof(memory), "RAM %.1f/%.1fG",
+        snprintf(memory, sizeof(memory), "RAM %.1f/%.1f",
                  (info->memory_total_kib - info->memory_available_kib) / gib,
                  info->memory_total_kib / gib);
     } else if (info->fields & SC_DEVICE_INFO_MEMORY_TOTAL) {
-        snprintf(memory, sizeof(memory), "RAM --/%.1fG", info->memory_total_kib / gib);
+        snprintf(memory, sizeof(memory), "RAM --/%.1f", info->memory_total_kib / gib);
     }
     if (info->fields & SC_DEVICE_INFO_TIMEOUT) {
         if (info->timeout_ms == ALWAYS_TIMEOUT) {

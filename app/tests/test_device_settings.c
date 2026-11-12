@@ -62,7 +62,7 @@ test_actions_readback_and_serial(void) {
     assert(info.timeout_ms == 2000 && info.stay_awake == 0);
     char text[192];
     sc_device_info_format(&info, text, sizeof(text));
-    assert(!strcmp(text, "Bat 72%/3200mAh | Data 5.2/47.8G | RAM 1.0/3.7G | Off 2s"));
+    assert(!strcmp(text, "Bat 72%/3200mAh | Data(/data) 5.2/47.8 | RAM 1.0/3.7 | Off 2s"));
     assert(!strcmp(device_fake.serial, "board-A"));
 
     static const struct {

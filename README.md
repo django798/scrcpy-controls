@@ -1,269 +1,129 @@
 <!-- Modified by moasm in 2026 for scrcpy-controls. -->
 # scrcpy-controls
 
-[![Control panel](https://github.com/django798/scrcpy-controls/actions/workflows/control-panel.yml/badge.svg?branch=codex%2Fcontrols)](https://github.com/django798/scrcpy-controls/actions/workflows/control-panel.yml)
+**English** | [简体中文](README.zh-CN.md)
 
-**非官方 scrcpy 扩展版 / Unofficial fork of
-[Genymobile/scrcpy](https://github.com/Genymobile/scrcpy), based on v5.0.1.**
-Maintained by moasm <moasm@sina.com>, under Apache-2.0.
-The original project's copyright notices and license are preserved.
+[![Control panel](https://github.com/django798/scrcpy-controls/actions/workflows/control-panel.yml/badge.svg)](https://github.com/django798/scrcpy-controls/actions/workflows/control-panel.yml)
 
-- **右侧全键盘和 Android 按键**：Power、返回、Home、多任务、音量、方向键等，
-  与投屏位于同一窗口。默认显示，可用 `--no-control-panel` 隐藏。
-- **多设备同时投屏**：直接启动，为所有在线且已授权的 ADB 设备分别打开窗口；
-  `-s SERIAL` 仍可只选择一台。修复 Windows 多实例端口冲突。
-- **两排快捷设置**：读取电量、可用的电池容量、存储和内存，设置熄屏超时
-  1/3/5/30 分钟或常亮，读回确认后显示设置结果。
+An unofficial fork of [Genymobile/scrcpy](https://github.com/Genymobile/scrcpy),
+based on **v5.0.1**, with an integrated keyboard and Android control panel.
+Maintained by moasm <moasm@sina.com> under Apache-2.0.
 
-Windows 下载 [客户端覆盖包](https://github.com/django798/scrcpy-controls/releases/latest)，
-解压到**上游官方 v5.0.1 Windows x64 完整包**目录，覆盖 `scrcpy.exe`，
-然后运行 `run-controls.bat`。覆盖包不包含 ADB、运行库或 Android 服务端。
-详见 [运行、构建和功能说明](doc/control-panel.md)、[变更记录](MODIFICATIONS.md)
-及 [第三方许可](THIRD_PARTY_NOTICES.md)。
+## Runtime screenshot
 
-The panel includes a full PC keyboard, Android navigation keys and compact device
-settings. Multiple connected devices open in separate windows automatically.
-Windows binaries are supplied as a client-only overlay for the matching official
-v5.0.1 package. Linux and macOS users can [build from source](doc/control-panel.md#linux--macos).
-CI builds and tests Linux, macOS Intel and Apple Silicon; device interaction on
-macOS/Linux still needs hardware validation.
+![Android mirroring with the integrated keyboard and compact device settings on Windows](assets/scrcpy-controls-windows.png)
 
-The documentation below is inherited from upstream. Upstream installation links
-install the original scrcpy without this fork's panel. For fork-specific issues,
-use [this repository's issue tracker](https://github.com/django798/scrcpy-controls/issues).
+Captured from **5.0.1-controls.2** on Windows, mirroring a **Pixel 2 (Android 11)**.
+The two bottom rows show the persistent **`Used/Total GiB`** legend and the
+explicit `Data(/data)` label. Readings are snapshots, populated at startup
+and refreshed with **Info**.
 
-## Upstream scrcpy (v5.0.1)
+## Features
 
-The official upstream project is <https://github.com/Genymobile/scrcpy>.
+- **Integrated controls:** full PC keyboard, Power, Back, Home, Recents, volume,
+  D-pad, navigation keys, modifiers and key repeat. Enabled by default;
+  `--no-control-panel` hides the panel.
+- **Multiple devices:** start once to open one window per online authorized ADB
+  device. Use `-s SERIAL` to select one. Windows listeners and ADB forwards are
+  isolated between instances.
+- **Compact device settings:** battery percentage and capacity when exposed by
+  the device, data storage, RAM, and screen timeout. Presets: 1, 3, 5, 30 minutes
+  or Always. A preset is highlighted only after the setting is read back.
 
-<img src="app/data/scrcpy.svg" width="128" height="128" alt="scrcpy" align="right" />
+## Windows: download and run
 
-_pronounced "**scr**een **c**o**py**"_
+1. Download and extract the official
+   [scrcpy-win64-v5.0.1.zip](https://github.com/Genymobile/scrcpy/releases/download/v5.0.1/scrcpy-win64-v5.0.1.zip).
+2. Download the Windows x64 **client overlay** from
+   [this fork's latest release](https://github.com/django798/scrcpy-controls/releases/latest).
+   Extract it into the same directory, replacing `scrcpy.exe`.
+3. Enable USB debugging, authorize the computer on Android, and run
+   `run-controls.bat`.
 
-This application mirrors Android devices (video and audio) connected via USB or
-[TCP/IP](doc/connection.md#tcpip-wireless) and allows control using the
-computer's keyboard and mouse. It does not require _root_ access or an app
-installed on the device. It works on _Linux_, _Windows_, and _macOS_.
-
-[![Linux](https://img.shields.io/badge/Linux-download-orange?style=for-the-badge&logo=linux)](doc/linux.md)&nbsp;
-[![Windows](https://img.shields.io/badge/Windows-download-blue?style=for-the-badge&logo=windows)](doc/windows.md)&nbsp;
-[![macOS](https://img.shields.io/badge/macOS-download-brightgreen?style=for-the-badge&logo=apple)](doc/macos.md)&nbsp;
-
-![screenshot](assets/screenshot-debian-600.jpg)
-
-It focuses on:
-
- - **lightness**: native rendering, with an optional control panel in this fork
- - **performance**: 30~120fps, depending on the device
- - **quality**: 1920×1080 or above
- - **low latency**: [35~70ms][lowlatency]
- - **low startup time**: ~1 second to display the first image
- - **non-intrusiveness**: nothing is left installed on the Android device
- - **user benefits**: no account, no ads, no internet required
- - **freedom**: free and open source software
-
-[lowlatency]: https://github.com/Genymobile/scrcpy/pull/646
-
-Its features include:
- - [audio forwarding](doc/audio.md) (Android 11+)
- - [recording](doc/recording.md)
- - [virtual display](doc/virtual-display.md)
- - mirroring with [Android device screen off](doc/device.md#turn-screen-off)
- - [copy-paste](doc/control.md#copy-paste) in both directions
- - [configurable quality](doc/video.md)
- - [camera mirroring](doc/camera.md) (Android 12+)
- - [mirroring as a webcam (V4L2)](doc/v4l2.md) (Linux-only)
- - physical [keyboard][hid-keyboard] and [mouse][hid-mouse] simulation (HID)
- - [gamepad](doc/gamepad.md) support
- - [OTG mode](doc/otg.md)
- - and more…
-
-[hid-keyboard]: doc/keyboard.md#physical-keyboard-simulation
-[hid-mouse]: doc/mouse.md#physical-mouse-simulation
-
-## Prerequisites
-
-The Android device requires at least API 21 (Android 5.0).
-
-[Audio forwarding](doc/audio.md) is supported for API >= 30 (Android 11+).
-
-Make sure you [enabled USB debugging][enable-adb] on your device(s).
-
-[enable-adb]: https://developer.android.com/studio/debug/dev-options#enable
-
-On some devices (especially Xiaomi), you might get the following error:
-
-```
-Injecting input events requires the caller (or the source of the instrumentation, if any) to have the INJECT_EVENTS permission.
+```bat
+run-controls.bat
+run-controls.bat -s DEVICE_SERIAL --no-audio
+run-controls.bat --no-control-panel
 ```
 
-In that case, you need to enable [an additional option][control] `USB debugging
-(Security Settings)` (this is an item different from `USB debugging`) to control
-it using a keyboard and mouse. Rebooting the device is necessary once this
-option is set.
+The overlay contains the modified client and documentation. ADB, runtime DLLs
+and the Android server come from the matching official **v5.0.1** package.
+See the [installation guide](doc/windows-overlay.md).
 
-[control]: https://github.com/Genymobile/scrcpy/issues/70#issuecomment-373286323
+## Reading the device information
 
-Note that USB debugging is not required to run scrcpy in [OTG mode](doc/otg.md).
+The second row always displays **`Used/Total GiB`**. For example,
+`Data(/data) 19.9/52.1` and `RAM 2.7/3.6` mean 19.9 GiB of storage used out of
+52.1 GiB, and 2.7 GiB of RAM used out of 3.6 GiB. Neither numerator means free.
 
+| Field | Source and meaning |
+| --- | --- |
+| `Data(/data)` | Used / total filesystem blocks reported by `df -k /data`. This is the data filesystem, including app data and user files backed by it. |
+| `RAM` | `(MemTotal - MemAvailable) / MemTotal` from `/proc/meminfo`. Reclaimable memory is treated as available; this is not the sum of process RSS. |
+| Whole internal flash, often called ROM | A separate hardware/storage-media capacity covering data, system and boot partitions. It is not inferred from `/data` and is not displayed by this panel. |
 
-## Get the app
+GiB means 2³⁰ bytes; it is different from the decimal GB used in advertised
+storage sizes. Filesystem reserves and quotas can also affect allocatable
+space. Free space inside a system partition is not additional space for apps.
+Android's [StorageStatsManager](https://developer.android.com/reference/android/app/usage/StorageStatsManager)
+also distinguishes the display capacity of the storage media from free space on
+a volume, which may include reclaimable cache. Those values need not match `df`.
 
- - [Linux](doc/linux.md)
- - [Windows](doc/windows.md) (read [how to run](doc/windows.md#run))
- - [macOS](doc/macos.md)
+Click **Info** to refresh. Missing values show `--`. Battery mAh is shown only
+when the device exposes a full/design capacity, never inferred from charge left.
 
+Timeout presets persist after exit. **Always** uses `2147483647 ms` and keeps the
+screen awake on external power; vendor policies and manual screen-off still
+apply. Selecting a finite preset disables stay-awake while plugged in. Upstream
+`--stay-awake` / `--screen-off-timeout` exit-restoration behavior still applies
+when those options are explicitly supplied.
 
-## Must-know tips
+## Build from source
 
- - [Reducing resolution](doc/video.md#size) may greatly improve performance
-   (`scrcpy -m1024`)
- - [_Right-click_](doc/mouse.md#mouse-bindings) triggers `BACK`
- - [_Middle-click_](doc/mouse.md#mouse-bindings) triggers `HOME`
- - <kbd>Alt</kbd>+<kbd>f</kbd> toggles [fullscreen](doc/window.md#fullscreen)
- - There are many other [shortcuts](doc/shortcuts.md)
+Windows, with Python 3 and PowerShell:
 
+```powershell
+powershell -ExecutionPolicy Bypass -File .\tools\build-windows.ps1
+powershell -ExecutionPolicy Bypass -File .\tools\build-windows.ps1 -Configuration release
+```
 
-## Usage examples
+Tools and verified dependencies are kept under ignored local build directories.
+The resulting complete local runtime is in `dist/scrcpy-controls-windows-x64`.
+Public releases use the client-only overlay described above.
 
-There are a lot of options, [documented](#user-documentation) in separate pages.
-Here are just some common examples.
+Linux and macOS: install the dependencies in the upstream
+[build guide](doc/build.md), including SDL3, FFmpeg, libusb, Meson and Ninja.
 
- - Capture the screen in H.265 (better quality), limit the size to 1920, limit
-   the frame rate to 60fps, disable audio, and control the device by simulating
-   a physical keyboard:
+```sh
+meson setup build-controls --buildtype=debug -Dcompile_server=false
+meson compile -C build-controls
+meson test -C build-controls --print-errorlogs
+curl -fL https://github.com/Genymobile/scrcpy/releases/download/v5.0.1/scrcpy-server-v5.0.1 -o scrcpy-server
+SCRCPY_SERVER_PATH="$PWD/scrcpy-server" SCRCPY_ICON_DIR="$PWD/app/data" \
+  ./build-controls/app/scrcpy
+```
 
-    ```bash
-    scrcpy --video-codec=h265 --max-size=1920 --max-fps=60 --no-audio --keyboard=uhid
-    scrcpy --video-codec=h265 -m1920 --max-fps=60 --no-audio -K  # short version
-    ```
+The server SHA-256 is
+`764eb6f79811d5211fe9df341120882ba9994c7a61b897d7bf3fb662e53bc536`.
+Windows has been tested with real Android devices. Native CI builds and runs
+17 automated tests on Linux, macOS Intel and Apple Silicon; physical-device
+interaction on Linux/macOS remains unverified. See [Actions](https://github.com/django798/scrcpy-controls/actions/workflows/control-panel.yml).
 
- - Start VLC in a new virtual display (separate from the device display):
+## Documentation and support
 
-    ```bash
-    scrcpy --new-display=1920x1080 --start-app=org.videolan.vlc
-    ```
-
- - Start VLC in a new _flex_ display using H.265 with a bitrate of 16 Mbps,
-   while keeping the display active so it does not turn off:
-
-    ```bash
-    scrcpy --new-display -x --keep-active --start-app=org.videolan.vlc --video-codec=h265 -b16M
-    ```
-
- - Record the device camera in H.265 at 1920x1080 (and microphone) to an MP4
-   file:
-
-    ```bash
-    scrcpy --video-source=camera --video-codec=h265 --camera-size=1920x1080 --record=file.mp4
-    ```
-
- - Capture the device front camera and expose it as a webcam on the computer (on
-   Linux):
-
-    ```bash
-    scrcpy --video-source=camera --camera-size=1920x1080 --camera-facing=front --v4l2-sink=/dev/video2 --no-playback
-    ```
-
- - Control the device without mirroring by simulating a physical keyboard and
-   mouse (USB debugging not required):
-
-    ```bash
-    scrcpy --otg
-    ```
-
- - Control the device using gamepads plugged into the computer:
-
-    ```bash
-    scrcpy --gamepad=uhid
-    scrcpy -G  # short version
-    ```
-
-## User documentation
-
-The application provides a lot of features and configuration options. They are
-documented in the following pages:
-
- - [Connection](doc/connection.md)
- - [Video](doc/video.md)
- - [Audio](doc/audio.md)
- - [Control](doc/control.md)
- - [Keyboard](doc/keyboard.md)
- - [Mouse](doc/mouse.md)
- - [Gamepad](doc/gamepad.md)
- - [Device](doc/device.md)
- - [Window](doc/window.md)
- - [Recording](doc/recording.md)
- - [Virtual display](doc/virtual-display.md)
- - [Tunnels](doc/tunnels.md)
- - [OTG](doc/otg.md)
- - [Camera](doc/camera.md)
- - [Video4Linux](doc/v4l2.md)
- - [Shortcuts](doc/shortcuts.md)
-
-
-## Resources
-
- - [FAQ](FAQ.md)
- - [Translations][wiki] (not necessarily up to date)
- - [Build instructions](doc/build.md)
- - [Developers](doc/develop.md)
- - [Verify upstream release signatures](doc/verify-release.md) (upstream releases only)
-
-[wiki]: https://github.com/Genymobile/scrcpy/wiki
-
-
-## Articles
-
-- [Introducing scrcpy][article-intro]
-- [Scrcpy now works wirelessly][article-tcpip]
-- [Scrcpy 2.0, with audio][article-scrcpy2]
-
-[article-intro]: https://blog.rom1v.com/2018/03/introducing-scrcpy/
-[article-tcpip]: https://www.genymotion.com/blog/open-source-project-scrcpy-now-works-wirelessly/
-[article-scrcpy2]: https://blog.rom1v.com/2023/03/scrcpy-2-0-with-audio/
-
-## Contact
-
-You can open an [issue] for bug reports, feature requests or general questions.
-
-For bug reports, please read the [FAQ](FAQ.md) first, you might find a solution
-to your problem immediately.
-
-[issue]: https://github.com/django798/scrcpy-controls/issues
-
-Upstream community channels:
-
- - Reddit: [`r/scrcpy`](https://www.reddit.com/r/scrcpy)
- - BlueSky: [`@scrcpy.bsky.social`](https://bsky.app/profile/scrcpy.bsky.social)
- - Twitter: [`@scrcpy_app`](https://twitter.com/scrcpy_app)
-
-
-## Support upstream
-
-[@rom1v](https://github.com/rom1v) is the original author and maintainer of _scrcpy_.
-
-You can [support the upstream maintainer's open source work][donate]:
- - [GitHub Sponsors](https://github.com/sponsors/rom1v)
- - [Liberapay](https://liberapay.com/rom1v/)
- - [PayPal](https://paypal.me/rom2v)
-
-[donate]: https://blog.rom1v.com/about/#support-my-open-source-work
+- [Changes from upstream](MODIFICATIONS.md)
+- [Fork issues](https://github.com/django798/scrcpy-controls/issues)
+- Upstream: [connection](doc/connection.md), [video](doc/video.md),
+  [audio](doc/audio.md), [control](doc/control.md), [shortcuts](doc/shortcuts.md),
+  [FAQ](FAQ.md). Upstream installation packages do not include this fork's panel.
+- [Support the upstream maintainer, rom1v](https://github.com/sponsors/rom1v)
 
 ## License
 
-    Copyright (C) 2018 Genymobile
-    Copyright (C) 2018-2026 Romain Vimont
-    Copyright (C) 2026 moasm (scrcpy-controls modifications)
+[Apache-2.0](LICENSE). See [NOTICE](NOTICE) and
+[third-party licenses and distribution](THIRD_PARTY_NOTICES.md).
+This independent repository imports clean version snapshots and preserves
+upstream attribution and license notices. It is not endorsed by Genymobile or rom1v.
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-        http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+Copyright (C) 2018 Genymobile. Copyright (C) 2018–2026 Romain Vimont.
+Copyright (C) 2026 moasm, for the scrcpy-controls modifications.

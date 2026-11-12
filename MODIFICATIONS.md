@@ -6,6 +6,16 @@ Maintainer: moasm <moasm@sina.com>.
 Base: upstream scrcpy v5.0.1, commit `a60891ae`.
 The Android server and its protocol version remain unchanged.
 
+## 5.0.1-controls.2
+
+- Provide separate English and Simplified Chinese READMEs, with runtime
+  screenshots and matching client-overlay installation guides.
+- Keep a persistent `Used/Total GiB` legend for both storage and RAM, including
+  while reading settings or reporting errors. Label storage as `Data(/data)`
+  and document its distinction from the device's whole flash capacity.
+- Preserve the existing used/total calculations: RAM used is
+  `MemTotal - MemAvailable`, and Data uses the filesystem statistics for `/data`.
+
 ## 5.0.1-controls.1
 
 - Add an integrated SDL3 right-side full PC keyboard and Android navigation,
