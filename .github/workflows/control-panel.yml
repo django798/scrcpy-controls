@@ -1,0 +1,58 @@
+# Copyright (C) 2026 moasm
+# SPDX-License-Identifier: Apache-2.0
+name: Control panel
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-26, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc pkg-config meson ninja-build cmake \
+            libavcodec-dev libavformat-dev libavutil-dev libswresample-dev \
+            libusb-1.0-0-dev libx11-dev libxext-dev libxrandr-dev libxcursor-dev \
+            libxi-dev libxfixes-dev libxss-dev libxtst-dev libwayland-dev \
+            libxkbcommon-dev libegl1-mesa-dev libgl1-mesa-dev
+          curl -fL https://github.com/libsdl-org/SDL/archive/refs/tags/release-3.4.18.tar.gz -o /tmp/sdl.tar.gz
+          echo 'c4b08b950bd29d83caae0ab8d884298d27046a9d30700fb42841c50992665c90  /tmp/sdl.tar.gz' | sha256sum -c -
+          tar xf /tmp/sdl.tar.gz -C /tmp
+          cmake -S /tmp/SDL-release-3.4.18 -B /tmp/sdl-build \
+            -DCMAKE_BUILD_TYPE=Release -DSDL_TESTS=OFF -DSDL_STATIC=OFF
+          cmake --build /tmp/sdl-build --parallel 4
+          sudo cmake --install /tmp/sdl-build
+          sudo ldconfig
+      - name: macOS dependencies
+        if: runner.os == 'macOS'
+        run: brew install meson ninja pkg-config ffmpeg sdl3 libusb
+      - name: Build client and tests
+        run: |
+          meson setup build-controls --buildtype=debug -Dcompile_server=false \
+            -Dv4l2=false -Dvaapi=false -Dvideotoolbox=false -Dd3d11va=false
+          meson compile -C build-controls
+      - name: Test
+        run: meson test -C build-controls --print-errorlogs
+      - name: Test logs
+        if: always()
+        run: python3 tools/sanitize-test-logs.py build-controls/meson-logs
+      - name: Upload test logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: control-panel-tests-${{ matrix.os }}
+          path: build-controls/meson-logs/testlog.*

@@ -1,0 +1,17 @@
+scrcpy-controls
+https://github.com/django798/scrcpy-controls
+
+Based on scrcpy v5.0.1:
+https://github.com/Genymobile/scrcpy
+Copyright (C) 2018 Genymobile
+Copyright (C) 2018-2026 Romain Vimont
+
+scrcpy-controls modifications:
+Copyright (C) 2026 moasm <moasm@sina.com>
+
+This unofficial fork adds a right-side keyboard and Android controls,
+automatic multi-device launching, device information and screen-timeout
+controls, and fixes Windows multi-instance port isolation. See MODIFICATIONS.md.
+The source and client executable are distributed under Apache-2.0; see LICENSE.
+Third-party libraries and tools retain their own licenses; see
+THIRD_PARTY_NOTICES.md. This fork is not endorsed by Genymobile or rom1v.
